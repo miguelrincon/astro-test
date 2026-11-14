@@ -1,0 +1,181 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import siteData from '../data/site.json';
+import { ui } from '../lib/i18n';
+import type { Lang } from '../lib/site';
+
+interface LinkItem {
+  label: string;
+  href: string;
+}
+
+interface NavItem extends LinkItem {
+  current: boolean;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  lang: Lang;
+  path: string;
+  nav: NavItem[];
+  explore: LinkItem[];
+  legal: LinkItem[];
+  currentKey: string;
+  homeHref: string;
+  bookingHref: string;
+  altHref: string;
+  alternates?: Partial<Record<Lang, string>>;
+  image?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  site?: typeof siteData;
+}
+
+const {
+  title,
+  description,
+  lang,
+  path,
+  nav,
+  explore,
+  legal,
+  currentKey,
+  homeHref,
+  bookingHref,
+  altHref,
+  alternates,
+  image = '/images/og.jpg',
+  noindex = false,
+  jsonLd,
+  site = siteData,
+} = Astro.props;
+
+const t = ui[lang];
+const siteUrl = Astro.site ?? new URL('https://example.com');
+const canonical = new URL(path, siteUrl).toString();
+const ogImage = new URL(image, siteUrl).toString();
+const pageTitle = title.includes(site.practiceName)
+  ? title
+  : `${title} · ${site.practiceName}`;
+const locale = lang === 'nl' ? 'nl_NL' : 'en_GB';
+const alternateLocale = lang === 'nl' ? 'en_GB' : 'nl_NL';
+
+const localBusiness = {
+  '@context': 'https://schema.org',
+  '@type': ['LocalBusiness', 'HealthAndBeautyBusiness'],
+  '@id': `${siteUrl.origin}/#practice`,
+  name: site.practiceName,
+  description,
+  url: siteUrl.origin,
+  image: ogImage,
+  email: site.email,
+  telephone: site.phoneDisplay,
+  founder: { '@type': 'Person', name: site.therapistName },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    postalCode: site.address.postalCode,
+    addressLocality: site.address.city,
+    addressCountry: 'NL',
+  },
+  areaServed: ['Rotterdam', 'Netherlands', 'Online'],
+  priceRange: '€€',
+  sameAs: [site.social.instagram, site.social.linkedin, site.social.facebook].filter(
+    Boolean,
+  ),
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+      opens: '09:00',
+      closes: '19:00',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: 'Friday',
+      opens: '09:00',
+      closes: '15:00',
+    },
+  ],
+};
+
+const jsonLdData = jsonLd
+  ? [localBusiness, ...(Array.isArray(jsonLd) ? jsonLd : [jsonLd])]
+  : localBusiness;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && <meta name="robots" content="index, follow, max-image-preview:large" />}
+
+    {alternates?.en && (
+      <link rel="alternate" hreflang="en" href={new URL(alternates.en, siteUrl).toString()} />
+    )}
+    {alternates?.nl && (
+      <link rel="alternate" hreflang="nl" href={new URL(alternates.nl, siteUrl).toString()} />
+    )}
+    {alternates && (
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={new URL(alternates.en ?? alternates.nl ?? path, siteUrl).toString()}
+      />
+    )}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.practiceName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={site.practiceName} />
+    <meta property="og:locale" content={locale} />
+    <meta property="og:locale:alternate" content={alternateLocale} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="theme-color" content="#204a41" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLdData)} />
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.skipLink}</a>
+    <Header
+      lang={lang}
+      nav={nav}
+      currentKey={currentKey}
+      homeHref={homeHref}
+      bookingHref={bookingHref}
+      altHref={altHref}
+      site={site}
+    />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} explore={explore} legal={legal} homeHref={homeHref} site={site} />
+  </body>
+</html>

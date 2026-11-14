@@ -1,0 +1,27 @@
+{
+  "practiceName": "Stillwater Hypnotherapy",
+  "therapistName": "Robin van Dijk",
+  "email": "hello@stillwaterhypnotherapy.com",
+  "phoneDisplay": "+31 6 12 34 56 78",
+  "phoneHref": "+31612345678",
+  "whatsapp": "+31612345678",
+  "address": {
+    "street": "Westblaak 123",
+    "postalCode": "3012 KL",
+    "city": "Rotterdam",
+    "country": "Netherlands"
+  },
+  "mapsUrl": "https://maps.google.com/?q=Westblaak+123+Rotterdam",
+  "hours": [
+    { "days": "Monday – Thursday", "time": "09:00 – 19:00" },
+    { "days": "Friday", "time": "09:00 – 15:00" },
+    { "days": "Saturday", "time": "By appointment" }
+  ],
+  "bookingUrl": "https://calendly.com/stillwater-hypnotherapy/intake",
+  "formEndpoint": "https://formspree.io/f/REPLACE_ME",
+  "social": {
+    "instagram": "https://instagram.com/",
+    "linkedin": "https://linkedin.com/",
+    "facebook": "https://facebook.com/"
+  }
+}

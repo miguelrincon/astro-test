@@ -1,0 +1,122 @@
+---
+import siteData from '../data/site.json';
+import Icon from './Icon.astro';
+import { ui } from '../lib/i18n';
+import type { Lang } from '../lib/site';
+
+interface LinkItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  lang: Lang;
+  explore: LinkItem[];
+  legal: LinkItem[];
+  homeHref: string;
+  site?: typeof siteData;
+}
+
+const { lang, explore, legal, homeHref, site = siteData } = Astro.props;
+const t = ui[lang];
+const year = new Date().getFullYear();
+const description =
+  lang === 'nl'
+    ? 'Rustige, praktische hypnotherapie in Rotterdam en online. Om je weer meer jezelf te laten voelen.'
+    : 'Calm, practical hypnotherapy in Rotterdam and online. Helping you feel more like yourself again.';
+const tagline = lang === 'nl' ? 'Hypnotherapie · Rotterdam' : 'Hypnotherapy · Rotterdam';
+const emailParts = site.email.split('@');
+const emailUser = emailParts[0];
+const emailDomain = emailParts.slice(1).join('@');
+const socials = [
+  { name: 'Instagram' as const, href: site.social.instagram },
+  { name: 'LinkedIn' as const, href: site.social.linkedin },
+  { name: 'Facebook' as const, href: site.social.facebook },
+];
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href={homeHref} aria-label={site.practiceName}>
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="24" cy="24" r="19" opacity="0.35"></circle>
+            <path d="M24 8c6.2 5.2 9.3 10.5 9.3 16S30.2 34.8 24 40c-6.2-5.2-9.3-10.5-9.3-16S17.8 13.2 24 8Z"></path>
+            <path d="M24 13v22"></path>
+            <path d="M13.5 24c4.2-3.1 7.2-3.1 10.5 0 3.3-3.1 6.3-3.1 10.5 0"></path>
+          </svg>
+          <span class="brand-text">
+            <span class="brand-name">{site.practiceName}</span>
+            <span class="brand-tagline">{tagline}</span>
+          </span>
+        </a>
+        <p class="footer-about">{description}</p>
+        <div class="social-links" style="margin-top: 1.25rem;">
+          {socials.map((social) => (
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.name}
+            >
+              <Icon name={social.name === 'Instagram' ? 'instagram' : social.name === 'LinkedIn' ? 'linkedin' : 'facebook'} />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">{t.explore}</h2>
+        <ul class="footer-list">
+          {explore.map((item) => (
+            <li><a href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">{t.contactHeading}</h2>
+        <ul class="footer-list footer-contact">
+          <li>
+            <a href={`mailto:${site.email}`}>{emailUser}@<wbr />{emailDomain}</a>
+          </li>
+          <li>
+            <a href={`tel:${site.phoneHref}`}>{site.phoneDisplay}</a>
+          </li>
+          <li>
+            {site.address.street}<br />
+            {site.address.postalCode} {site.address.city}
+          </li>
+          <li>
+            <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer">
+              {t.directions}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="footer-heading">{t.hoursHeading}</h2>
+        <ul class="hours">
+          {site.hours.map((entry) => (
+            <li>
+              <span>{entry.days}</span>
+              <span>{entry.time}</span>
+            </li>
+          ))}
+        </ul>
+        <ul class="footer-list" style="margin-top: 1.25rem;">
+          {legal.map((item) => (
+            <li><a href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p style="margin: 0;">&copy; {year} {site.practiceName}. {t.rights}</p>
+      <p style="margin: 0;">{site.therapistName}</p>
+    </div>
+  </div>
+</footer>

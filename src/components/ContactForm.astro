@@ -1,0 +1,59 @@
+---
+import siteData from '../data/site.json';
+import { ui } from '../lib/i18n';
+import type { Lang } from '../lib/site';
+
+interface Props {
+  lang: Lang;
+  site?: typeof siteData;
+}
+
+const { lang, site = siteData } = Astro.props;
+const t = ui[lang];
+const needsSetup = site.formEndpoint.includes('REPLACE_ME');
+---
+
+<form class="form" action={site.formEndpoint} method="POST">
+  <input type="hidden" name="_subject" value={`Website enquiry — ${site.practiceName}`} />
+  <input type="hidden" name="_language" value={lang} />
+  <input
+    type="text"
+    name="_gotcha"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+    class="visually-hidden"
+  />
+
+  <div class="form-row form-row--two">
+    <div class="field">
+      <label for="contact-name">{t.form.name}</label>
+      <input id="contact-name" name="name" type="text" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for="contact-email">{t.form.email}</label>
+      <input id="contact-email" name="email" type="email" autocomplete="email" required />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="contact-phone">{t.form.phone}</label>
+    <input id="contact-phone" name="phone" type="tel" autocomplete="tel" />
+  </div>
+
+  <div class="field">
+    <label for="contact-message">{t.form.message}</label>
+    <textarea id="contact-message" name="message" required></textarea>
+  </div>
+
+  <label class="checkbox">
+    <input type="checkbox" name="consent" value="yes" required />
+    <span>{t.form.consent}</span>
+  </label>
+
+  <button class="button button--primary button--block" type="submit">
+    {t.form.submit}
+  </button>
+
+  {needsSetup && <p class="form-note">{t.form.note}</p>}
+</form>

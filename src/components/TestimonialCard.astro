@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+
+interface Props {
+  testimonial: CollectionEntry<'testimonials'>;
+  ratingsLabel: string;
+}
+
+const { testimonial, ratingsLabel } = Astro.props;
+const { quote, author, location, service, rating } = testimonial.data;
+---
+
+<figure class="quote-card">
+  <div class="quote-card__stars" role="img" aria-label={`${rating} ${ratingsLabel}`}>
+    {Array.from({ length: 5 }).map((_, index) => (
+      <Icon name="star" class={index < rating ? undefined : 'is-empty'} />
+    ))}
+  </div>
+  <blockquote>{quote}</blockquote>
+  <figcaption>
+    <strong>{author}</strong>
+    {[location, service].filter(Boolean).join(' · ')}
+  </figcaption>
+</figure>

@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import PageView from '../components/PageView.astro';
+import { langFromId } from '../lib/site';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+
+  return pages
+    .filter((page) => page.data.translationKey !== 'home')
+    .map((page) => {
+      const lang = langFromId(page.id);
+      const slug = page.data.urlSlug;
+      return {
+        params: { slug: lang === 'nl' ? `nl/${slug}` : slug },
+        props: { entry: page, lang },
+      };
+    });
+}
+
+const { entry, lang } = Astro.props;
+---
+
+<PageView entry={entry} lang={lang} />

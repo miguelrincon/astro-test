@@ -1,0 +1,11 @@
+---
+import { getCollection } from 'astro:content';
+import PageView from '../../components/PageView.astro';
+
+const entry = (await getCollection('pages')).find((page) => page.id === 'nl/home');
+if (!entry) {
+  throw new Error('Missing Dutch home page content entry (src/content/pages/nl/home.md)');
+}
+---
+
+<PageView entry={entry} lang="nl" />

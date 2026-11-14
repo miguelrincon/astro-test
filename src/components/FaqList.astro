@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  faqs: CollectionEntry<'faqs'>[];
+}
+
+const { faqs } = Astro.props;
+const sorted = [...faqs].sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="faq-list">
+  {sorted.map((faq, index) => (
+    <details class="faq" open={index === 0}>
+      <summary>{faq.data.question}</summary>
+      <div class="faq__answer">
+        <p>{faq.data.answer}</p>
+      </div>
+    </details>
+  ))}
+</div>

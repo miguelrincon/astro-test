@@ -1,0 +1,95 @@
+---
+import siteData from '../data/site.json';
+import { ui } from '../lib/i18n';
+import type { Lang } from '../lib/site';
+
+interface NavItem {
+  label: string;
+  href: string;
+  current: boolean;
+}
+
+interface Props {
+  lang: Lang;
+  nav: NavItem[];
+  currentKey: string;
+  homeHref: string;
+  bookingHref: string;
+  altHref: string;
+  site?: typeof siteData;
+}
+
+const { lang, nav, homeHref, bookingHref, altHref, site = siteData } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === 'en' ? 'nl' : 'en';
+const tagline = lang === 'nl' ? 'Hypnotherapie · Rotterdam' : 'Hypnotherapy · Rotterdam';
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href={homeHref} aria-label={site.practiceName}>
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="24" cy="24" r="19" opacity="0.35"></circle>
+        <path d="M24 8c6.2 5.2 9.3 10.5 9.3 16S30.2 34.8 24 40c-6.2-5.2-9.3-10.5-9.3-16S17.8 13.2 24 8Z"></path>
+        <path d="M24 13v22"></path>
+        <path d="M13.5 24c4.2-3.1 7.2-3.1 10.5 0 3.3-3.1 6.3-3.1 10.5 0"></path>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">{site.practiceName}</span>
+        <span class="brand-tagline">{tagline}</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label={t.mainNavLabel}>
+      <ul class="nav-list">
+        {nav.map((item) => (
+          <li>
+            <a
+              class="nav-link"
+              href={item.href}
+              aria-current={item.current ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <a
+        class="lang-switch"
+        href={altHref}
+        hreflang={other}
+        lang={other}
+        aria-label={t.switchLanguageLabel}
+      >
+        {t.switchLanguage}
+      </a>
+      <a class="button button--primary button--small header-cta" href={bookingHref}>
+        {t.bookShort}
+      </a>
+
+      <details class="mobile-nav">
+        <summary>{t.menu}</summary>
+        <div class="mobile-nav__panel">
+          <ul class="mobile-nav__list">
+            {nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={item.current ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a class="button button--primary button--block mobile-nav__cta" href={bookingHref}>
+            {t.bookShort}
+          </a>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>

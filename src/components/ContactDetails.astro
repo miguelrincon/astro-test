@@ -1,0 +1,64 @@
+---
+import siteData from '../data/site.json';
+import Icon from './Icon.astro';
+import { ui } from '../lib/i18n';
+import type { Lang } from '../lib/site';
+
+interface Props {
+  lang: Lang;
+  site?: typeof siteData;
+}
+
+const { lang, site = siteData } = Astro.props;
+const t = ui[lang];
+const whatsappHref = `https://wa.me/${site.whatsapp.replace(/[^0-9]/g, '')}`;
+const emailParts = site.email.split('@');
+const emailUser = emailParts[0];
+const emailDomain = emailParts.slice(1).join('@');
+---
+
+<div class="contact-panel">
+  <ul class="contact-list">
+    <li>
+      <Icon name="mail" />
+      <div>
+        <strong>{t.emailLabel}</strong>
+        <a href={`mailto:${site.email}`}>{emailUser}@<wbr />{emailDomain}</a>
+      </div>
+    </li>
+    <li>
+      <Icon name="phone" />
+      <div>
+        <strong>{t.phoneLabel}</strong>
+        <a href={`tel:${site.phoneHref}`}>{site.phoneDisplay}</a>
+      </div>
+    </li>
+    <li>
+      <Icon name="message" />
+      <div>
+        <strong>{t.whatsappLabel}</strong>
+        <a href={whatsappHref} target="_blank" rel="noopener noreferrer">{t.whatsappUs}</a>
+      </div>
+    </li>
+    <li>
+      <Icon name="pin" />
+      <div>
+        <strong>{t.addressHeading}</strong>
+        {site.address.street}<br />
+        {site.address.postalCode} {site.address.city}<br />
+        <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer">{t.directions}</a>
+      </div>
+    </li>
+  </ul>
+
+  <h3 style="margin: 2rem 0 0.75rem; font-size: 1.15rem;">{t.hoursHeading}</h3>
+  <ul class="hours">
+    {site.hours.map((entry) => (
+      <li>
+        <span>{entry.days}</span>
+        <span>{entry.time}</span>
+      </li>
+    ))}
+  </ul>
+  <p class="form-note" style="margin-top: 1rem;">{t.responseNote}</p>
+</div>

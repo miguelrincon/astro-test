@@ -1,0 +1,371 @@
+media:
+  input: public/images
+  output: /images
+  rename: safe
+  extensions: [jpg, jpeg, png, webp, avif, svg]
+
+content:
+  - name: site
+    label: Site settings
+    type: file
+    path: src/data/site.json
+    format: json
+    fields:
+      - name: practiceName
+        label: Practice name
+        type: string
+        required: true
+      - name: therapistName
+        label: Therapist name
+        type: string
+        required: true
+      - name: email
+        label: Email
+        type: string
+        required: true
+      - name: phoneDisplay
+        label: Phone (display)
+        type: string
+        required: true
+      - name: phoneHref
+        label: Phone (link format)
+        type: string
+        required: true
+        description: "Digits only with country code, e.g. +31612345678"
+      - name: whatsapp
+        label: WhatsApp number
+        type: string
+      - name: address
+        label: Address
+        type: object
+        fields:
+          - name: street
+            label: Street
+            type: string
+          - name: postalCode
+            label: Postal code
+            type: string
+          - name: city
+            label: City
+            type: string
+          - name: country
+            label: Country
+            type: string
+      - name: mapsUrl
+        label: Google Maps link
+        type: string
+      - name: hours
+        label: Opening hours
+        type: object
+        list: true
+        fields:
+          - name: days
+            label: Days
+            type: string
+          - name: time
+            label: Time
+            type: string
+      - name: bookingUrl
+        label: Booking calendar link
+        type: string
+      - name: formEndpoint
+        label: Contact form endpoint
+        type: string
+        description: "Formspree or similar endpoint. Replace REPLACE_ME before launch."
+      - name: social
+        label: Social links
+        type: object
+        fields:
+          - name: instagram
+            label: Instagram
+            type: string
+          - name: linkedin
+            label: LinkedIn
+            type: string
+          - name: facebook
+            label: Facebook
+            type: string
+
+  - name: pages-en
+    label: Pages (English)
+    type: collection
+    path: src/content/pages/en
+    format: yaml-frontmatter
+    fields:
+      - name: title
+        label: Page title
+        type: string
+        required: true
+      - name: navTitle
+        label: Navigation label
+        type: string
+      - name: description
+        label: Meta description
+        type: text
+        required: true
+      - name: urlSlug
+        label: URL slug
+        type: string
+        required: true
+        description: "Used in the URL. Changing this changes the page address."
+      - name: translationKey
+        label: Translation key
+        type: string
+        required: true
+        description: "Internal key that links the English and Dutch versions. Do not change."
+      - name: eyebrow
+        label: Eyebrow
+        type: string
+      - name: hero
+        label: Hero
+        type: object
+        fields:
+          - name: heading
+            label: Heading
+            type: string
+          - name: subheading
+            label: Subheading
+            type: text
+          - name: image
+            label: Image
+            type: image
+          - name: imageAlt
+            label: Image alt text
+            type: string
+      - name: seoTitle
+        label: SEO title (optional)
+        type: string
+      - name: noindex
+        label: Hide from search engines
+        type: boolean
+      - name: body
+        label: Page content
+        type: rich-text
+
+  - name: pages-nl
+    label: Pagina's (Nederlands)
+    type: collection
+    path: src/content/pages/nl
+    format: yaml-frontmatter
+    fields:
+      - name: title
+        label: Paginatitel
+        type: string
+        required: true
+      - name: navTitle
+        label: Navigatielabel
+        type: string
+      - name: description
+        label: Meta-omschrijving
+        type: text
+        required: true
+      - name: urlSlug
+        label: URL-slug
+        type: string
+        required: true
+        description: "Wordt gebruikt in de URL. Aanpassen verandert het adres van de pagina."
+      - name: translationKey
+        label: Vertaalsleutel
+        type: string
+        required: true
+        description: "Interne sleutel die de Engelse en Nederlandse versie koppelt. Niet aanpassen."
+      - name: eyebrow
+        label: Eyebrow
+        type: string
+      - name: hero
+        label: Hero
+        type: object
+        fields:
+          - name: heading
+            label: Kop
+            type: string
+          - name: subheading
+            label: Subkop
+            type: text
+          - name: image
+            label: Afbeelding
+            type: image
+          - name: imageAlt
+            label: Alternatieve tekst
+            type: string
+      - name: seoTitle
+        label: SEO-titel (optioneel)
+        type: string
+      - name: noindex
+        label: Verbergen voor zoekmachines
+        type: boolean
+      - name: body
+        label: Pagina-inhoud
+        type: rich-text
+
+  - name: services-en
+    label: Services (English)
+    type: collection
+    path: src/content/services/en
+    format: yaml-frontmatter
+    fields:
+      - name: title
+        label: Service name
+        type: string
+        required: true
+      - name: translationKey
+        label: Translation key
+        type: string
+        required: true
+      - name: summary
+        label: Summary
+        type: text
+        required: true
+      - name: duration
+        label: Duration
+        type: string
+        required: true
+      - name: price
+        label: Price
+        type: string
+        required: true
+      - name: order
+        label: Sort order
+        type: number
+      - name: image
+        label: Image
+        type: image
+      - name: imageAlt
+        label: Image alt text
+        type: string
+
+  - name: services-nl
+    label: Diensten (Nederlands)
+    type: collection
+    path: src/content/services/nl
+    format: yaml-frontmatter
+    fields:
+      - name: title
+        label: Naam dienst
+        type: string
+        required: true
+      - name: translationKey
+        label: Vertaalsleutel
+        type: string
+        required: true
+      - name: summary
+        label: Samenvatting
+        type: text
+        required: true
+      - name: duration
+        label: Duur
+        type: string
+        required: true
+      - name: price
+        label: Prijs
+        type: string
+        required: true
+      - name: order
+        label: Sorteervolgorde
+        type: number
+      - name: image
+        label: Afbeelding
+        type: image
+      - name: imageAlt
+        label: Alternatieve tekst
+        type: string
+
+  - name: faqs-en
+    label: FAQs (English)
+    type: collection
+    path: src/content/faqs/en
+    format: yaml-frontmatter
+    fields:
+      - name: question
+        label: Question
+        type: string
+        required: true
+      - name: answer
+        label: Answer
+        type: text
+        required: true
+      - name: order
+        label: Sort order
+        type: number
+
+  - name: faqs-nl
+    label: Veelgestelde vragen (Nederlands)
+    type: collection
+    path: src/content/faqs/nl
+    format: yaml-frontmatter
+    fields:
+      - name: question
+        label: Vraag
+        type: string
+        required: true
+      - name: answer
+        label: Antwoord
+        type: text
+        required: true
+      - name: order
+        label: Sorteervolgorde
+        type: number
+
+  - name: testimonials-en
+    label: Testimonials (English)
+    type: collection
+    path: src/content/testimonials/en
+    format: yaml-frontmatter
+    fields:
+      - name: quote
+        label: Quote
+        type: text
+        required: true
+      - name: author
+        label: Author
+        type: string
+        required: true
+        description: "Use a first name and initial only."
+      - name: location
+        label: Location
+        type: string
+      - name: service
+        label: Service
+        type: string
+      - name: rating
+        label: Rating (1–5)
+        type: number
+      - name: order
+        label: Sort order
+        type: number
+
+  - name: testimonials-nl
+    label: Ervaringen (Nederlands)
+    type: collection
+    path: src/content/testimonials/nl
+    format: yaml-frontmatter
+    fields:
+      - name: quote
+        label: Citaat
+        type: text
+        required: true
+      - name: author
+        label: Auteur
+        type: string
+        required: true
+        description: "Gebruik alleen een voornaam en initiaal."
+      - name: location
+        label: Locatie
+        type: string
+      - name: service
+        label: Dienst
+        type: string
+      - name: rating
+        label: Beoordeling (1–5)
+        type: number
+      - name: order
+        label: Sorteervolgorde
+        type: number
+
+settings:
+  commit:
+    templates:
+      create: "content: add {path}"
+      update: "content: update {path}"
+      delete: "content: remove {path}"
+      rename: "content: rename {oldPath} to {newPath}"

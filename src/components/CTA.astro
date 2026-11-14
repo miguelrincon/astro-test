@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+
+interface Link {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  text: string;
+  primary: Link;
+  secondary?: Link;
+}
+
+const { title, text, primary, secondary } = Astro.props;
+---
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <h2>{title}</h2>
+      <p>{text}</p>
+      <div class="cta-band__actions button-row">
+        <a class="button button--accent" href={primary.href}>
+          {primary.label}
+          <Icon name="arrow" />
+        </a>
+        {secondary && (
+          <a class="button button--ghost" href={secondary.href}>{secondary.label}</a>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

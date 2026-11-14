@@ -1,0 +1,437 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from './Hero.astro';
+import PageHeader from './PageHeader.astro';
+import SectionHead from './SectionHead.astro';
+import ServiceCard from './ServiceCard.astro';
+import TestimonialCard from './TestimonialCard.astro';
+import FaqList from './FaqList.astro';
+import CTA from './CTA.astro';
+import ContactForm from './ContactForm.astro';
+import ContactDetails from './ContactDetails.astro';
+import Icon from './Icon.astro';
+import siteData from '../data/site.json';
+import { ui } from '../lib/i18n';
+import {
+  footerNavKeys,
+  langFromId,
+  mainNavKeys,
+  otherLang,
+  pagePath,
+  type Lang,
+  type PageEntry,
+} from '../lib/site';
+
+interface Props {
+  entry: PageEntry;
+  lang: Lang;
+}
+
+const { entry, lang } = Astro.props;
+const t = ui[lang];
+const key = entry.data.translationKey;
+const isHome = key === 'home';
+const { Content } = await render(entry);
+
+const allPages = await getCollection('pages');
+const pagesFor = (target: Lang) => allPages.filter((page) => langFromId(page.id) === target);
+const pagesByKey = new Map(pagesFor(lang).map((page) => [page.data.translationKey, page]));
+const other = otherLang(lang);
+const otherByKey = new Map(pagesFor(other).map((page) => [page.data.translationKey, page]));
+
+const homePage = pagesByKey.get('home');
+const homeHref = homePage ? pagePath(lang, homePage.data.urlSlug, 'home') : '/';
+const bookingPage = pagesByKey.get('booking');
+const contactPage = pagesByKey.get('contact');
+const bookingHref = bookingPage
+  ? pagePath(lang, bookingPage.data.urlSlug, bookingPage.data.translationKey)
+  : contactPage
+    ? pagePath(lang, contactPage.data.urlSlug, contactPage.data.translationKey)
+    : homeHref;
+const secondaryHref = contactPage
+  ? pagePath(lang, contactPage.data.urlSlug, contactPage.data.translationKey)
+  : bookingHref;
+
+const currentPath = pagePath(lang, entry.data.urlSlug, key);
+const otherEntry = otherByKey.get(key);
+const altHref = otherEntry
+  ? pagePath(other, otherEntry.data.urlSlug, otherEntry.data.translationKey)
+  : homeHref;
+const alternates = otherEntry
+  ? {
+      [lang]: currentPath,
+      [other]: pagePath(other, otherEntry.data.urlSlug, otherEntry.data.translationKey),
+    }
+  : undefined;
+
+type LinkItem = { label: string; href: string };
+type NavItem = LinkItem & { current: boolean };
+
+function buildLink(translationKey: string, currentKey?: string): NavItem | null {
+  const page = pagesByKey.get(translationKey);
+  if (!page) return null;
+  return {
+    label: page.data.navTitle ?? page.data.title,
+    href: pagePath(lang, page.data.urlSlug, page.data.translationKey),
+    current: translationKey === currentKey,
+  };
+}
+
+const nav = mainNavKeys
+  .map((translationKey) => buildLink(translationKey, key))
+  .filter((item): item is NavItem => item !== null);
+
+const explore = footerNavKeys
+  .filter((translationKey) => translationKey !== 'privacy' && translationKey !== 'terms')
+  .map((translationKey) => buildLink(translationKey))
+  .filter((item): item is NavItem => item !== null)
+  .map(({ label, href }) => ({ label, href }));
+
+const legal = ['privacy', 'terms']
+  .map((translationKey) => buildLink(translationKey))
+  .filter((item): item is NavItem => item !== null)
+  .map(({ label, href }) => ({ label, href }));
+
+const services = (
+  await getCollection('services', ({ id }) => langFromId(id) === lang)
+).sort((a, b) => a.data.order - b.data.order);
+
+const faqs = (await getCollection('faqs', ({ id }) => langFromId(id) === lang)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const testimonials = (
+  await getCollection('testimonials', ({ id }) => langFromId(id) === lang)
+).sort((a, b) => a.data.order - b.data.order);
+
+const featuredServices = services.slice(0, 3);
+const featuredTestimonial: CollectionEntry<'testimonials'> | undefined = testimonials[0];
+
+const hero = entry.data.hero;
+const heroNote =
+  lang === 'nl'
+    ? { title: 'Gratis intake', text: '20 minuten, online of in de praktijk. Zonder verplichtingen.' }
+    : { title: 'Free intake', text: '20 minutes, online or in the practice. No obligation.' };
+
+const faqJsonLd =
+  key === 'faq' && faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.data.question,
+          acceptedAnswer: { '@type': 'Answer', text: faq.data.answer },
+        })),
+      }
+    : undefined;
+---
+
+<BaseLayout
+  title={entry.data.seoTitle ?? entry.data.title}
+  description={entry.data.description}
+  lang={lang}
+  path={currentPath}
+  nav={nav}
+  explore={explore}
+  legal={legal}
+  currentKey={key}
+  homeHref={homeHref}
+  bookingHref={bookingHref}
+  altHref={altHref}
+  alternates={alternates}
+  noindex={entry.data.noindex}
+  jsonLd={faqJsonLd}
+>
+  {hero ? (
+    <Hero
+      eyebrow={entry.data.eyebrow}
+      heading={hero.heading}
+      subheading={hero.subheading}
+      image={hero.image}
+      imageAlt={hero.imageAlt}
+      badges={isHome ? t.home.badges : undefined}
+      primary={{
+        label: t.bookCta,
+        href: key === 'booking' ? siteData.bookingUrl : bookingHref,
+      }}
+      secondary={
+        isHome
+          ? {
+              label: t.viewAllServices,
+              href: (() => {
+                const servicesPage = pagesByKey.get('services');
+                return servicesPage
+                  ? pagePath(lang, servicesPage.data.urlSlug, 'services')
+                  : bookingHref;
+              })(),
+            }
+          : key === 'contact'
+            ? undefined
+            : { label: t.contactCta, href: secondaryHref }
+      }
+      note={isHome ? heroNote : undefined}
+    />
+  ) : (
+    <PageHeader
+      eyebrow={entry.data.eyebrow}
+      title={entry.data.title}
+      text={entry.data.description}
+    />
+  )}
+
+  <section class:list={['section', isHome && 'section--tight']}>
+    <div class="container container--narrow">
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </section>
+
+  {isHome && (
+    <>
+      <section class="section section--paper-2">
+        <div class="container">
+          <SectionHead
+            eyebrow={lang === 'nl' ? 'Diensten' : 'Services'}
+            title={t.home.servicesTitle}
+            text={t.home.servicesLead}
+          />
+          <div class="card-grid card-grid--three">
+            {featuredServices.map((service) => (
+              <ServiceCard service={service} href={bookingHref} ctaLabel={t.bookShort} />
+            ))}
+          </div>
+          <div class="button-row" style="margin-top: 2rem;">
+            <a class="text-link" href={(() => {
+              const servicesPage = pagesByKey.get('services');
+              return servicesPage ? pagePath(lang, servicesPage.data.urlSlug, 'services') : bookingHref;
+            })()}>
+              {t.viewAllServices}
+              <Icon name="arrow" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--dark">
+        <div class="container">
+          <SectionHead
+            eyebrow={lang === 'nl' ? 'Werkwijze' : 'Approach'}
+            title={t.home.approachTitle}
+            text={t.home.approachLead}
+          />
+          <div class="steps steps--four">
+            {t.home.approachSteps.map((step, index) => (
+              <div class="step">
+                <span class="step__num">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {featuredTestimonial && (
+        <section class="section">
+          <div class="container">
+            <div class="split split--even">
+              <div>
+                <SectionHead
+                  eyebrow={lang === 'nl' ? 'Ervaringen' : 'Testimonials'}
+                  title={t.home.testimonialsTitle}
+                />
+                <a class="text-link" href={(() => {
+                  const page = pagesByKey.get('testimonials');
+                  return page ? pagePath(lang, page.data.urlSlug, 'testimonials') : bookingHref;
+                })()}>
+                  {t.viewAll}
+                  <Icon name="arrow" />
+                </a>
+              </div>
+              <TestimonialCard testimonial={featuredTestimonial} ratingsLabel={t.ratingsLabel} />
+            </div>
+          </div>
+        </section>
+      )}
+
+      <CTA
+        title={t.home.intakeTitle}
+        text={t.home.intakeText}
+        primary={{ label: t.bookCta, href: bookingHref }}
+        secondary={{ label: t.contactCta, href: secondaryHref }}
+      />
+    </>
+  )}
+
+  {key === 'services' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <SectionHead
+          eyebrow={lang === 'nl' ? 'Diensten' : 'Services'}
+          title={t.servicesHeading}
+          text={t.servicesIntro}
+        />
+        <div class="card-grid card-grid--three">
+          {services.map((service) => (
+            <ServiceCard service={service} href={bookingHref} ctaLabel={t.bookShort} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {key === 'process' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <SectionHead
+          eyebrow={lang === 'nl' ? 'Werkwijze' : 'Approach'}
+          title={t.processHeading}
+          text={t.home.approachLead}
+        />
+        <div class="steps steps--four">
+          {t.home.approachSteps.map((step, index) => (
+            <div class="step">
+              <span class="step__num">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {key === 'pricing' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <SectionHead
+          eyebrow={lang === 'nl' ? 'Tarieven' : 'Pricing'}
+          title={t.pricingHeading}
+          text={t.pricingIntro}
+        />
+        <div class="table-scroll">
+          <table class="pricing-table">
+            <thead>
+              <tr>
+                <th scope="col">{lang === 'nl' ? 'Sessie' : 'Session'}</th>
+                <th scope="col">{lang === 'nl' ? 'Duur' : 'Duration'}</th>
+                <th scope="col">{lang === 'nl' ? 'Prijs' : 'Price'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service) => (
+                <tr>
+                  <td class="service-name">
+                    {service.data.title}
+                    <span>{service.data.summary}</span>
+                  </td>
+                  <td>{service.data.duration}</td>
+                  <td class="price">{service.data.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div class="button-row" style="margin-top: 2rem;">
+          <a class="button button--primary" href={bookingHref}>{t.bookCta}</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {key === 'faq' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <SectionHead
+          eyebrow={lang === 'nl' ? 'Vragen' : 'Questions'}
+          title={t.faqHeading}
+          text={t.faqIntro}
+        />
+        <FaqList faqs={faqs} />
+      </div>
+    </section>
+  )}
+
+  {key === 'testimonials' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <SectionHead
+          eyebrow={lang === 'nl' ? 'Ervaringen' : 'Testimonials'}
+          title={t.testimonialsHeading}
+          text={t.testimonialsIntro}
+        />
+        <div class="card-grid card-grid--three">
+          {testimonials.map((testimonial) => (
+            <TestimonialCard testimonial={testimonial} ratingsLabel={t.ratingsLabel} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {key === 'contact' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <div class="contact-grid">
+          <ContactDetails lang={lang} />
+          <div class="contact-panel">
+            <h2 style="font-size: 1.6rem;">{t.form.heading}</h2>
+            <p class="lead" style="font-size: 1rem; margin-bottom: 1.5rem;">{t.form.intro}</p>
+            <ContactForm lang={lang} />
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {key === 'booking' && (
+    <section class="section section--paper-2">
+      <div class="container">
+        <div class="split split--even">
+          <div>
+            <SectionHead
+              eyebrow={lang === 'nl' ? 'Intake' : 'Intake'}
+              title={t.bookingHeading}
+              text={t.bookingIntro}
+            />
+            <div class="steps">
+              {t.bookingSteps.map((step, index) => (
+                <div class="step">
+                  <span class="step__num">{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <p style="margin: 0;">{step}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div class="button-row" style="margin-top: 1.75rem;">
+              <a class="button button--primary" href={siteData.bookingUrl} target="_blank" rel="noopener noreferrer">
+                {t.bookOnline}
+                <Icon name="external" />
+              </a>
+              <a class="text-link" href={secondaryHref}>{t.preferContact}</a>
+            </div>
+          </div>
+          <ContactDetails lang={lang} />
+        </div>
+      </div>
+    </section>
+  )}
+
+  {!isHome && !['services', 'process', 'pricing', 'faq', 'testimonials', 'contact', 'booking', 'privacy', 'terms'].includes(key) && (
+    <CTA
+      title={t.home.intakeTitle}
+      text={t.home.intakeText}
+      primary={{ label: t.bookCta, href: bookingHref }}
+      secondary={{ label: t.contactCta, href: secondaryHref }}
+    />
+  )}
+</BaseLayout>

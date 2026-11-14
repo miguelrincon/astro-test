@@ -1,0 +1,40 @@
+---
+import '../styles/global.css';
+import site from '../data/site.json';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found · {site.practiceName}</title>
+    <meta name="description" content="This page could not be found. Return to the Stillwater Hypnotherapy home page or get in touch." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="not-found container container--narrow">
+      <p class="eyebrow">404</p>
+      <h1>Page not found</h1>
+      <p>
+        This page may have moved. You can return home or get in touch and I will point you in
+        the right direction.
+      </p>
+      <p lang="nl">
+        Deze pagina is misschien verplaatst. Ga terug naar home of neem contact op, dan wijs
+        ik je de weg.
+      </p>
+      <div class="button-row not-found__actions">
+        <a class="button button--primary" href="/">Back to home</a>
+        <a class="button button--ghost" href="/nl/" hreflang="nl" lang="nl">Naar de Nederlandse site</a>
+      </div>
+    </main>
+  </body>
+</html>
