@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import siteData from '../data/site.json';
 import { ui } from '../lib/i18n';
-import type { Lang } from '../lib/site';
+import { withBase, type Lang } from '../lib/site';
 
 interface LinkItem {
   label: string;
@@ -56,7 +56,7 @@ const {
 const t = ui[lang];
 const siteUrl = Astro.site ?? new URL('https://example.com');
 const canonical = new URL(path, siteUrl).toString();
-const ogImage = new URL(image, siteUrl).toString();
+const ogImage = new URL(withBase(image), siteUrl).toString();
 const pageTitle = title.includes(site.practiceName)
   ? title
   : `${title} · ${site.practiceName}`;
@@ -148,8 +148,8 @@ const jsonLdData = jsonLd
     <meta name="twitter:image" content={ogImage} />
 
     <meta name="theme-color" content="#204a41" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase('/favicon.svg')} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

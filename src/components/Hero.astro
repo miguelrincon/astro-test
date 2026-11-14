@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { withBase } from '../lib/site';
 
 interface Link {
   label: string;
@@ -53,7 +54,7 @@ const { eyebrow, heading, subheading, image, imageAlt, badges, primary, secondar
       <div class="hero-media">
         <img
           class="hero-image"
-          src={image}
+          src={withBase(image)}
           alt={imageAlt ?? ''}
           width="1200"
           height="1500"

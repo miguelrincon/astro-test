@@ -1,9 +1,12 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
+const site = process.env.SITE_URL ?? 'https://miguelrincon.github.io';
+const base = process.env.BASE_PATH || '/';
+
 export default defineConfig({
-  // Change this to the real domain before deploying.
-  site: 'https://example.com',
+  site,
+  base,
   trailingSlash: 'always',
   integrations: [sitemap()],
   build: {

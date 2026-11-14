@@ -20,6 +20,7 @@ import {
   mainNavKeys,
   otherLang,
   pagePath,
+  withBase,
   type Lang,
   type PageEntry,
 } from '../lib/site';
@@ -42,7 +43,7 @@ const other = otherLang(lang);
 const otherByKey = new Map(pagesFor(other).map((page) => [page.data.translationKey, page]));
 
 const homePage = pagesByKey.get('home');
-const homeHref = homePage ? pagePath(lang, homePage.data.urlSlug, 'home') : '/';
+const homeHref = homePage ? pagePath(lang, homePage.data.urlSlug, 'home') : withBase('/');
 const bookingPage = pagesByKey.get('booking');
 const contactPage = pagesByKey.get('contact');
 const bookingHref = bookingPage

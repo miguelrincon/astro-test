@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import Icon from './Icon.astro';
+import { withBase } from '../lib/site';
 
 interface Props {
   service: CollectionEntry<'services'>;
@@ -16,7 +17,7 @@ const { title, summary, duration, price, image, imageAlt } = service.data;
   {image && (
     <img
       class="service-card__media"
-      src={image}
+      src={withBase(image)}
       alt={imageAlt ?? ''}
       width="800"
       height="500"
